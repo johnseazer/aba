@@ -20,13 +20,6 @@ AUSTRICHE,	AUTRICHE,
 ```
 
 ```
-(ſans	(sans
-ſi	si
-obſervateurs	observateurs
-antiquitez)	antiquités)
-```
-
-```
 auſſi-	-
 bien	aussi-bien
 ```
@@ -35,11 +28,6 @@ bien	aussi-bien
 -	tout
 -	à
 tout-à-coup	coup
-```
-
-```
-agréable	-
-;	agréable;
 ```
 
 ```
@@ -63,20 +51,9 @@ TERESE	MARIE-THÉRÈSE
 ```
 
 ```
-noſtre	-
-jugement	notre
-;	jugement;
-```
-
-```
 -	piété
 pieté	aussi
 auſſi-bien	bien
-```
-
-```
-conqueſte	-
-;	conquête;
 ```
 
 # Dico
