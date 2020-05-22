@@ -12,6 +12,7 @@ install and imports
 """
 
 # !pip install pygit2
+import os
 from os import listdir
 from os.path import isfile, join
 from shutil import rmtree
@@ -175,7 +176,7 @@ def remove_punctuation(s):
 	return s.replace(':', ' ').replace(';', ' ')
  
 def remove_parentheses(s):
-     return s.replace('(', ' ').replace(')', ' ')
+	return s.replace('(', ' ').replace(')', ' ')
 
 def split_sequence(s):
 	# splits on all spaces
@@ -185,7 +186,7 @@ def split_sequence(s):
 main
 """
 
-files = [f for f in listdir(srcdir) if isfile(join(srcdir, f))]
+files = [f for f in listdir(src_dir) if isfile(join(src_dir, f))]
 
 for f in files:
 	
@@ -193,8 +194,8 @@ for f in files:
 	print(f)
 	
 	# open source and destination files
-	srcf = open(srcdir + '/' + f, "r", encoding="utf8")
-	dstf = open(dstdir + '/' + f, "w", encoding = "utf8")
+	srcf = open(src_dir + '/' + f, "r", encoding="utf8")
+	dstf = open(dst_dir + '/' + f, "w", encoding = "utf8")
 
 	# process source file lines
 	for line in srcf.readlines():
@@ -209,7 +210,7 @@ for f in files:
 		# align words with needleman-wunsch
 		out1, out2 = needleman_wunsch(seq1, seq2)
 		
-    # write to destination file
+	# write to destination file
 		for i in range(len(out1)):
 			if (delta_only and out1[i] == out2[i]):
 				# if delta only, ignore identical words
@@ -217,6 +218,7 @@ for f in files:
 			# write both words
 			dstf.write(out1[i] + '\t' + out2[i] + '\n')
 
-    # close files
+	# close files
 	dstf.close()
 	srcf.close()
+
