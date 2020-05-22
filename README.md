@@ -7,8 +7,13 @@ Approches automatiques de modernisation de textes du XVIe au XVIIIe siècle
 
 * Downloads the PARALLEL17 corpus
 * Aligns words instead of sentences using Needleman-Wunsch
-
 * Writes results to `corpus_tsv_aligned` directory as .tsv files
+
+Install pygit2
+
+```python
+pip install pygit2
+```
 
 Results can either include all words or only words which are different between fren and fr
 
