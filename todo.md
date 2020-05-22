@@ -3,8 +3,20 @@
 * Add column names to .tsv ?
 * Add `delta_only` as command line option ?
 * Use URLs to download single raw files from github instead of downloading whole repo ?
-* List of bad alignment that needs to be addressed.
-  * Bossuet
+
+## Alignment
+
+List of bad alignment that needs to be addressed.
+
+* Hyphenation changes
+
+  * Warning : some are correct and must stay unchanged
+
+    ```
+    Aulugelle,	Aulu-gelle
+    ```
+
+* Bossuet
 
 ```
 -	TRES
@@ -55,6 +67,30 @@ TERESE	MARIE-THÉRÈSE
 pieté	aussi
 auſſi-bien	bien
 ```
+
+* Bruyère
+
+```
+au	-
+delà	au-delà
+```
+
+```
+quatre-vingt	-
+quinze	quatre-vingt-quinze
+```
+
+```-	de
+de-là	là
+```
+
+```
+'	’
+```
+
+???
+
+
 
 # Dico
 

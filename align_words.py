@@ -171,9 +171,12 @@ def concatenate_que(s):
 	return s.replace('lors qu', 'lorsqu')
 
 def remove_punctuation(s):
-	# apostre:gal → apostre gal
-	# warning : creates double space
-	return s.replace(':', ' ').replace(';', ' ')
+	# warning : creates multiple spaces
+	s = s.replace('.', ' ')
+	s = s.replace(',', ' ')
+	s = s.replace(':', ' ')
+	s = s.replace(';', ' ')
+	return s
  
 def remove_parentheses(s):
 	return s.replace('(', ' ').replace(')', ' ')
