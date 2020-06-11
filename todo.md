@@ -1,97 +1,58 @@
-# Align Words
+## rules
 
-* Add column names to .tsv ?
-* Add `delta_only` as command line option ?
-* Use URLs to download single raw files from github instead of downloading whole repo ?
+* add rules → see what is left → add new rules → etc.
+* use needlemann-wunsch to align characters in words
+* how to use google spreadsheet for analysis ?
 
-## Alignment
+## align words
 
-List of bad alignment that needs to be addressed.
+* code presentation : order of functions (main before or after defs ?)
+* add column names to .tsv ?
+* use urls to download single raw files from github instead of downloading whole repo
 
-* Hyphenation changes
+### alignment
 
-  * Warning : some are correct and must stay unchanged
-
-    ```
-    Aulugelle,	Aulu-gelle
-    ```
-
-* Bossuet
+ambiguous alignment on compound words
 
 ```
--	TRES
--	HAUTE,
--	TRES
-TRESHAUTE,	EXCELLENTE,
-TRES-EXCELLENTE,	TRES
-TRES-PUISSANTE,	PUISSANTE,
-TRES-	TRES
-MARIE	-
-TERESE	MARIE-THÉRÈSE
-AUSTRICHE,	AUTRICHE,
+['&', 'MARIE', 'TERESE', 'perit', 'pour', 'toute', 'la', 'terre', '.']
+['¤', 'et', 'MARIE-THÉRÈSE', 'périt', 'pour', 'toute', 'la', 'terre', '.']
 ```
 
-```
-auſſi-	-
-bien	aussi-bien
-```
+gives
 
 ```
--	tout
--	à
-tout-à-coup	coup
+['& MARIE', 'TERESE', 'perit', 'pour', 'toute', 'la', 'terre', '.']
+['et', 'MARIE-THÉRÈSE', 'périt', 'pour', 'toute', 'la', 'terre', '.']
 ```
 
-```
-par	-
-tout	partout
-```
+add special case to levenshtein
+
+### processing empty words
+
+`'¤'` must be concatenated with the word most of the time, but sometimes with previous one
 
 ```
-tarde-t-	-
-elle	tarde-t-elle
+['Avec', 'quelle', 'application', '&', 'quelle', 'tendreſſe', 'Philippe', 'IV', '.', 'ſon', 'pere', 'ne', "l'", 'avoit-il', 'pas', 'élevée', '?']
+['Avec', 'quelle', 'application', 'et', 'quelle', 'tendresse', 'Philippe', 'IV', '¤', 'son', 'père', 'ne', 'l’', 'avait-il', 'pas', 'élevée', '?']
 ```
 
-```
-Jeſus-	-
-Chriſt,	Jésus-Christ,
-```
+here we need `IV` + `¤` → `IV` so we can have `IV` + `.` → `IV.`, but the current result is
 
 ```
-MARIE	-
-TERESE	MARIE-THÉRÈSE
+['Avec', 'quelle', 'application', '&', 'quelle', 'tendreſſe', 'Philippe', 'IV', '. ſon', 'pere', 'ne', "l'", 'avoit-il', 'pas', 'élevée', '?']
+['Avec', 'quelle', 'application', 'et', 'quelle', 'tendresse', 'Philippe', 'IV', 'son', 'père', 'ne', 'l’', 'avait-il', 'pas', 'élevée', '?']
 ```
 
-```
--	piété
-pieté	aussi
-auſſi-bien	bien
-```
+(the issue of the space character must be addressed too)
 
-* Bruyère
+## todo
 
-```
-au	-
-delà	au-delà
-```
-
-```
-quatre-vingt	-
-quinze	quatre-vingt-quinze
-```
-
-```-	de
-de-là	là
-```
-
-```
-'	’
-```
-
-???
-
-
-
-# Dico
-
-Extract .tsv dictionary from [wikisource](https://fr.wikisource.org/wiki/Wikisource:Dictionnaire).
+* compléter repérage auto des types de changements
+* approche statistique : voir ce qui change et les premières lettres identiques avant ou après
+  * pour toutes les configurations :
+    * compter cb de fois les lettres anciennes changent
+    * compter cb de fois les lettres anciennes restent identiques
+* stocker distances levenshtein pour accélérer traitement ?
+* utiliser arguments en ligne de commande/variables globales ?
+* découper le module nlptools en plusieurs modules dans un package

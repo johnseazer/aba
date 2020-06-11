@@ -3,33 +3,46 @@ Français de la Renaissance
 
 Approches automatiques de modernisation de textes du XVIe au XVIIIe siècle
 
-## Align Words
+## Download PARALLEL17
 
-* Downloads the PARALLEL17 corpus
-* Aligns words instead of sentences using Needleman-Wunsch
-* Writes results to `corpus_tsv_aligned` directory as .tsv files
-
-Install pygit2
+* Install `pygit2`
 
 ```python
 pip install pygit2
 ```
 
-Results can either include all words or only words which are different between fren and fr
+* Run `dl_parallel17.py`
 
-```python
-# write differences only
-delta_only = True
+```
+python dl_parallel17.py
 ```
 
-```python
-# write everything
-delta_only = False
-```
+## Align Words
 
-Run the script
+Read directory containing `.tsv` files aligned on sentences and create a new directory with the same files aligned on words.
+
+* Run `tsv_align_words.py` 
 
 ```bash
-python align_words.py
+python tsv_align_words.py
 ```
 
+## Extract Dictionary
+
+Read directory containing `.tsv` files aligned on words and create dictionary of all encountered pairs with count.
+
+* Run `tsv_extract_dict.py`
+
+```bash
+python tsv_extract_dict.py
+```
+
+## Label Dictionary
+
+Read `.tsv` dictionary from `tsv_extract_dic.py` and create dictionary with same entries and rules applied in translation
+
+* Run `tsv_label_dict.py`
+
+```bash
+python tsv_label_dict.py
+```
