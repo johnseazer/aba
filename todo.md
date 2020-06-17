@@ -1,32 +1,6 @@
-## rules
-
-* add rules → see what is left → add new rules → etc.
-* use needlemann-wunsch to align characters in words
-* how to use google spreadsheet for analysis ?
-
 ## align words
 
-* code presentation : order of functions (main before or after defs ?)
-* add column names to .tsv ?
 * use urls to download single raw files from github instead of downloading whole repo
-
-### alignment
-
-ambiguous alignment on compound words
-
-```
-['&', 'MARIE', 'TERESE', 'perit', 'pour', 'toute', 'la', 'terre', '.']
-['¤', 'et', 'MARIE-THÉRÈSE', 'périt', 'pour', 'toute', 'la', 'terre', '.']
-```
-
-gives
-
-```
-['& MARIE', 'TERESE', 'perit', 'pour', 'toute', 'la', 'terre', '.']
-['et', 'MARIE-THÉRÈSE', 'périt', 'pour', 'toute', 'la', 'terre', '.']
-```
-
-add special case to levenshtein
 
 ### processing empty words
 
@@ -56,3 +30,4 @@ here we need `IV` + `¤` → `IV` so we can have `IV` + `.` → `IV.`, but the c
 * stocker distances levenshtein pour accélérer traitement ?
 * utiliser arguments en ligne de commande/variables globales ?
 * découper le module nlptools en plusieurs modules dans un package
+* lister les erreurs du corpus parallel17
