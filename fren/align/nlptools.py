@@ -1,145 +1,4 @@
 '''
-levenshtein distance
-
-# Christopher P. Matthews
-# christophermatthews1985@gmail.com
-# Sacramento, CA, USA
-'''
-
-def levenshtein(s, t):
-		''' From Wikipedia article ; Iterative with two matrix rows. '''
-		# special cases of equivalent characters
-		s = s.replace('&', 'et')
-		# distance
-		if s == t: return 0
-		elif len(s) == 0: return len(t)
-		elif len(t) == 0: return len(s)
-		v0 = [None] * (len(t) + 1)
-		v1 = [None] * (len(t) + 1)
-		for i in range(len(v0)):
-			v0[i] = i
-		for i in range(len(s)):
-			v1[0] = i + 1
-			for j in range(len(t)):
-				cost = 0 if s[i] == t[j] else 1
-				v1[j + 1] = min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost)
-			for j in range(len(v0)):
-				v0[j] = v1[j]           
-		return v1[len(t)]
-
-'''
-needleman-wunsch algorithm
-
-source : https://wilkelab.org/classes/SDS348/2018_spring/labs/lab13-solution.html
-modified to process word sequences instead of letter sequences
-'''
-
-# scoring table
-gap_penalty = -1
-match_award = 1
-mismatch_penalty = -1
-
-def zeros(rows, cols):
-	'''returns a matrix of zeros'''
-	res = []
-	for x in range(rows):
-		res.append([])
-		for y in range(cols):
-			res[-1].append(0)
-	return res
-
-def match_score(a, b, distance):
-	# make all lowercase
-	a = a.lower()
-	b = b.lower()
-	# match
-	if (a == b
-		or a in 'eêéè' and b in 'eêéè'
-		or a in 'aàâ' and b in 'aàâ'
-		or a in 'oô' and b in 'oô'
-		or a in 'iî' and b in 'iî'
-		or a in 'uùû' and b in 'uùû'
-		or distance == True and levenshtein(a, b) <= 1):
-		return match_award
-	elif a == '¤' or b == '¤':
-		return gap_penalty
-	else:
-		return mismatch_penalty
-
-def needleman_wunsch(seq1, seq2, distance = True): 
-	
-	# init matrix
-	n = len(seq1)
-	m = len(seq2)
-	score = zeros(m + 1, n + 1)
-	
-	# fill first col
-	for i in range(0, m + 1):
-		score[i][0] = gap_penalty * i
-	# fill first row
-	for j in range(0, n + 1):
-		score[0][j] = gap_penalty * j
-	
-	# fill all cells
-	for i in range(1, m + 1):
-		for j in range(1, n + 1):
-			# compute values from top, left, and top-left diagonal cells
-			match = score[i - 1][j - 1] + match_score(seq1[j-1], seq2[i-1], distance)
-			delete = score[i - 1][j] + gap_penalty
-			insert = score[i][j - 1] + gap_penalty
-			# store the max of the three values
-			score[i][j] = max(match, delete, insert)
- 
-	# init traceback
-	align1 = []
-	align2 = []
-	i = m
-	j = n
-
-	# traceback
-	while i > 0 and j > 0:
-		
-		# retrieve scores
-		score_current = score[i][j]
-		score_diagonal = score[i-1][j-1]
-		score_up = score[i][j-1]
-		score_left = score[i-1][j]
-		
-		# find the origin cell, store corresponding elements, and advance
-		if score_current == score_diagonal + match_score(seq1[j-1], seq2[i-1], distance):
-			# origin is top-left diagonal
-			align1.append(seq1[j-1])
-			align2.append(seq2[i-1])
-			i -= 1
-			j -= 1
-		elif score_current == score_up + gap_penalty:
-			# origin is top
-			align1.append(seq1[j-1])
-			align2.append('¤')
-			j -= 1
-		elif score_current == score_left + gap_penalty:
-			# origin is left
-			align1.append('¤')
-			align2.append(seq2[i-1])
-			i -= 1
-
-	# proceed to topmost leftmost cell
-	while j > 0:
-		align1.append(seq1[j-1])
-		align2.append('¤')
-		j -= 1
-	while i > 0:
-		align1.append('¤')
-		align2.append(seq2[i-1])
-		i -= 1
-	
-	# reverse the elements order
-	align1 = align1[::-1]
-	align2 = align2[::-1]
-	
-	return(align1, align2)
-
-'''
 pre-processing
 '''
 
@@ -159,7 +18,7 @@ def separate_apostrophe(s):
 
 def separate_punctuation(s):
 	# symbols to treat as single tokens (apostrophe and hyphen not counted)
-	punctuation = '!"\()*,./:;>?[]^«¬»„…'
+	punctuation = '!"\\()*,./:;>?[]^«¬»„…'
 	# separate these symbols in the string (add space before and after)
 	for char in punctuation:
 		s = s.replace(char, ' ' + char + ' ')
@@ -379,7 +238,7 @@ def find_rules(old, new):
 				or (old, new) == ('j', 'i')):
 			rules.append('lettre ramiste')
 		# suppression lettre étymologique
-		elif (old in 'ſshtdcç' and new == '¤'):
+		elif (old in 'ſshtdcçb' and new == '¤'):
 			rules.append ('supp. lettre étymologique')
 
 	# 2 chars rules

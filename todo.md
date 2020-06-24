@@ -1,3 +1,12 @@
+# Notes
+
+* restructure
+* algorithms
+* tests
+* substitution matrix / transition matrix
+* data structure for rules
+* smith-waterman
+
 ## align words
 
 * use urls to download single raw files from github instead of downloading whole repo

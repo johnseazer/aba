@@ -1,6 +1,7 @@
-*.tsv
-*.pyc
-docs/
-ipynb/
-PARALLEL17/
-corpus_tsv_aligned/
+backup/*
+docs/*
+download/*
+other/*
+result/*
+**/.pytest_cache/*
+**/__pycache__/*
