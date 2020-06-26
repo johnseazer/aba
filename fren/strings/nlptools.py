@@ -1,3 +1,5 @@
+from .needlemanwunsch import align
+
 '''
 pre-processing
 '''
@@ -81,7 +83,7 @@ def align_compound_words(a, b):
 	return res_a, res_b
 
 def align_chars(s, t):
-	s, t = needleman_wunsch(list(s), list(t), distance = False)
+	s, t = align(list(s), list(t))
 	return ''.join(s), ''.join(t)
 
 def has_diff(str1, str2, seq1, seq2):

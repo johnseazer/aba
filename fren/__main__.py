@@ -1,10 +1,34 @@
-
 from pathlib import Path
 from pygit2 import clone_repository
 
-from .align import needlemanwunsch
-from .align import substitution
-from .align.nlptools import preprocess, align_compound_words, pairs_to_file
+from .strings import needlemanwunsch
+from .strings import substitution
+from .strings.nlptools import preprocess, align_compound_words, align_chars, get_diffs
+
+from .data.saving import pairs_to_file,  pair_to_dic, dic_to_file
+
+
+def run():
+
+	# Repository
+	repo_url = 'https://github.com/e-ditiones/PARALLEL17.git'
+	corpus = 'corpus_tsv'
+
+	# Directories
+	download = init_directory(Path('download'))
+	result = init_directory(Path('result'))
+
+	# Download Repository
+	repo = download_repo(repo_url, download)
+
+	# Align Words
+	align_words(download/repo/corpus, result/repo/corpus)
+
+	# Extract Dictionary
+	dic = extract_dict(result/repo/corpus, result/repo)
+
+	# Analyze Dictionary
+	dic_labeled = label_dict(dic, result/repo/'dic_labeled.tsv')
 
 
 def init_directory(directory):
@@ -29,22 +53,20 @@ def download_repo(repo_url, download_dir):
 	# return if repository already downloaded
 	if Path.exists(repo_dir):
 		print(f'{repo_name} already downloaded to {repo_dir}')
-		return repo_dir
+		return repo_name
 	
 	# download repository
 	print(f'Download {repo_name} from {repo_url}')
 	clone_repository(repo_url, repo_dir)
 	print(f'{repo_name} downloaded to {repo_dir}')
-	return repo_dir
+	return repo_name
 
 
 def align_words(input_dir, output_dir):
 
-	'''
 	if Path.exists(output_dir):
 		print(f'{input_dir} already aligned, result in {output_dir}')
 		return output_dir
-	'''
 
 	init_directory(output_dir)
 
@@ -78,32 +100,60 @@ def align_words(input_dir, output_dir):
 				old, new = align_compound_words(old, new)
 				# write to file
 				pairs_to_file(old, new, dst)
-'''
-'''
 
 
-def run():
+def extract_dict(input_dir, output_dir, delta_only = True):
 
-	# Directories
-	download_dir_name = 'download'
-	result_dir_name = 'result'
+	dict_name = 'dictionary'
+	dict_path = output_dir/(dict_name+'.tsv')
 
-	download_dir = init_directory(Path(download_dir_name))
-	result_dir = init_directory(Path(result_dir_name))
+	# init dictionary
+	dic = {}
 
-	# Repository
-	repo_url = 'https://github.com/e-ditiones/PARALLEL17.git'
-	corpus_repo_dir = 'corpus_tsv'
+	# init file list
+	files = [f.name for f in input_dir.iterdir() if f.is_file() and f.suffix == '.tsv']
 
-	# Download PARALLEL17
-	repo_dir = download_repo(repo_url, download_dir)
+	# process all files
+	for f in files:
+		print(f'extracting words from {f}')
+		# read file
+		with open(input_dir/f, 'r', encoding = 'utf8') as src:
+			lines = src.readlines()
+		# process lines
+		for line in lines:
+			# retrieve word pair
+			old, new = line.rstrip().split('\t')
+			# add word pair to dictionary
+			pair_to_dic(old, new, dic, delta_only)
+
+	# write dic to tsv
+	print(f'write dictionary to {dict_path}')
+	with open(dict_path, 'w', encoding = 'utf8') as dst:
+		dic_to_file(dic, dst)
 	
-	corpus_dir = repo_dir.relative_to(download_dir) / corpus_repo_dir
-	input_dir = download_dir / corpus_dir
-	output_dir = result_dir / corpus_dir
+	return dict_path
 
-	# Align Words
-	align_words(input_dir, output_dir)
+
+def label_dict(input_file, output_file):
+
+	# read entries from source dictionary
+	with open(f'{input_file}', 'r', encoding = 'utf8') as src:
+		lines = src.readlines()
+	# process entries
+	with open(f'{output_file}', 'w', encoding = 'utf8') as dst:
+		# process dictionary entries
+		for line in lines:
+			# parse entry
+			old, new, count = line.rstrip('\n').split('\t')
+			# align chars
+			old, new = align_chars(old, new)
+			# find differences
+			ndiffs, diffs = get_diffs(old, new)
+			# write new entry for each diff
+			for diff in diffs:
+				old_chars, new_chars, rules = diff
+				dst.write(f'{old}\t{new}\t{count}\t{ndiffs}\t{old_chars}\t{new_chars}\t{rules}\n')
+
 
 
 if __name__ == '__main__':
