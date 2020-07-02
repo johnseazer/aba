@@ -1,9 +1,9 @@
 from pathlib import Path
 from pygit2 import clone_repository
 
-from .strings import needlemanwunsch
+from .strings.alignment import needleman_wunsch
+from .strings.nlptools import preprocess, align_compound_words, align_chars, find_diffs
 from .strings import substitution
-from .strings.nlptools import preprocess, align_compound_words, align_chars, get_diffs
 
 from .data.saving import pairs_to_file,  pair_to_dic, dic_to_file
 
@@ -70,6 +70,9 @@ def align_words(input_dir, output_dir):
 
 	init_directory(output_dir)
 
+	# init substitution matrix
+	submat = substitution.init_submat_chars()
+
 	# get input files
 	files = [f.name for f in input_dir.iterdir() if f.is_file() and f.suffix == '.tsv']
 
@@ -85,19 +88,19 @@ def align_words(input_dir, output_dir):
 			for line in lines:
 				# split line
 				sequences = line.rstrip().split('\t')
-				# ignore empty lines
-				if (len(sequences) < 2):
+				# ignore bad lines
+				if (len(sequences) != 2):
 					print(f'\tcorpus error : bad line format\t{sequences}')
 					continue
 				# unpack sequences
-				old, new = sequences
+				(old, new) = sequences
 				# pre-process sequences
 				old = preprocess(old)
 				new = preprocess(new)	
 				# align words with needleman-wunsch
-				old, new = needlemanwunsch.align(old, new)
+				(old, new) = needleman_wunsch(old, new, submat = submat, mode = 'words')
 				# post-process sequences
-				old, new = align_compound_words(old, new)
+				(old, new) = align_compound_words(old, new)
 				# write to file
 				pairs_to_file(old, new, dst)
 
@@ -136,6 +139,8 @@ def extract_dict(input_dir, output_dir, delta_only = True):
 
 def label_dict(input_file, output_file):
 
+	submat = substitution.init_submat_chars()
+
 	# read entries from source dictionary
 	with open(f'{input_file}', 'r', encoding = 'utf8') as src:
 		lines = src.readlines()
@@ -146,14 +151,13 @@ def label_dict(input_file, output_file):
 			# parse entry
 			old, new, count = line.rstrip('\n').split('\t')
 			# align chars
-			old, new = align_chars(old, new)
+			old, new = align_chars(old, new, submat)
 			# find differences
-			ndiffs, diffs = get_diffs(old, new)
+			ndiffs, diffs = find_diffs(old, new)
 			# write new entry for each diff
 			for diff in diffs:
 				old_chars, new_chars, rules = diff
 				dst.write(f'{old}\t{new}\t{count}\t{ndiffs}\t{old_chars}\t{new_chars}\t{rules}\n')
-
 
 
 if __name__ == '__main__':

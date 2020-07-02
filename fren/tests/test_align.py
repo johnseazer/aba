@@ -1,14 +1,7 @@
-from fren.align import needlemanwunsch as nw
-from fren.align import levenshtein as lev
-from fren.align import substitution as sub
-from fren.align import utils
-
-'''
-def test_levenshtein():
-	s = 'test'
-	t = 'fest'
-	assert nlptools.levenshtein(s, t) == 1
-'''
+from fren.strings.alignment import needleman_wunsch
+from fren.strings.distance import levenshtein
+from fren.strings import substitution as sub
+from fren.strings import utils
 
 def test_init_matrix():
 	a = 'a'
@@ -22,7 +15,7 @@ def test_levensthein():
 	b = 'xyz'
 	costs = (1, 1, 2)
 	res = 6
-	assert lev.levenshtein(a, b, costs) == res
+	assert levenshtein(a, b, costs) == res
 
 def test_needleman_wunsch():
 	submat = {}
@@ -30,4 +23,4 @@ def test_needleman_wunsch():
 	a = 'cét'
 	b = 'cette'
 	align = (['c', 'é', '¤', 't', '¤'], ['c', 'e', 't', 't', 'e'])
-	assert nw.align(a, b, submat = submat) == align
+	assert needleman_wunsch(a, b, submat = submat) == align

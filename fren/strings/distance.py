@@ -4,7 +4,7 @@ from itertools import product
 from .utils import init_matrix
 
 
-def levenshtein(a, b, costs = (1, 1, 1)):
+def levenshtein(a, b, costs = (1, 1, 1), submat = {}):
     """Returns the Levensthein distance between two strings"""
     # unpack cost parameters
     del_cost, ins_cost, sub_cost = costs
@@ -12,7 +12,7 @@ def levenshtein(a, b, costs = (1, 1, 1)):
     rows, cols, dist = init_matrix(a, b)
     # fill matrix
     for x, y in product(range(1, rows), range(1, cols)):
-        if a[x-1] == b[y-1]:
+        if a[x-1] == b[y-1] or a[x-1] in submat and b[y-1] in submat[a[x-1]]:
             cost = 0
         else:
             cost = sub_cost

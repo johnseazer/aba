@@ -1,4 +1,5 @@
-from .needlemanwunsch import align
+from more_itertools import consume
+from .alignment import needleman_wunsch
 
 '''
 pre-processing
@@ -23,7 +24,8 @@ def separate_punctuation(s):
 	punctuation = '!"\\()*,./:;>?[]^«¬»„…'
 	# separate these symbols in the string (add space before and after)
 	for char in punctuation:
-		s = s.replace(char, ' ' + char + ' ')
+		# s = s.replace(char, ' ' + char + ' ')
+		s = s.replace(char, ' ')
 	# special case for ... (put consecutive periods back together)
 	s = s.replace('.  .  .', '...')
 	return s
@@ -82,189 +84,155 @@ def align_compound_words(a, b):
 	# return result lists
 	return res_a, res_b
 
-def align_chars(s, t):
-	s, t = align(list(s), list(t))
+def align_chars(s, t, submat):
+	s, t = needleman_wunsch(list(s), list(t), submat = submat)
 	return ''.join(s), ''.join(t)
 
-def has_diff(str1, str2, seq1, seq2):
-	'''
-	returns true if both strings contain respective sequence at same index
-	'''
-	assert len(str1) == len(str2), 'error : words not aligned'
-	return True if (str1.find(seq1) == str2.find(seq2)) else False
+def find_diffs(old, new):
 
-def get_diffs(string1, string2):
+	assert len(old) == len(new), 'error : words not aligned'
 
-	'''
-	returns the number and list of changes between strings a and b
-	format : (substring1, substring2, applied_rules)
-	'''
-	assert len(string1) == len(string2), f'error: different size for strings ({string1} → {string2})'
+	diffs = []
 
-	# init changes and substrings
-	nchanges, changes = (0, [])
-	substring1, substring2 = ('', '')
+	# todo : treat maj
+	old = old.lower()
+	new = new.lower()
 
-	# look at each pair of chars
-	for char1, char2 in zip(string1, string2):		
-		
-		# if different chars
-		if char1 != char2:
+	indexes = iter(range(len(old)))
+
+	for i in indexes:
+
+		if old[i] != new[i]:
+
+			if (old[i] == new[i].upper() or
+				new[i] == old[i].upper()):
+				diffs.append((old[i], new[i], ['majuscule']))
+			if (old[i] == 'ſ' and
+				new[i] in 'sz'):
+				diffs.append((old[i], new[i], ['s long']))
+
+			# auecque/avecque, doncque
+			elif (i-1 > 0 and old[i-1] == new[i-1] == 'c'
+				and old[i:i+4] == 'ques' and new[i:i+4] == '¤¤¤¤'):
+				diffs.append((old[i:i+4], new[i:i+4], ['avecque(s)/doncque(s)']))
+				consume(indexes, 3)
+			elif (i-1 > 0 and old[i-1] == new[i-1] == 'c'
+				and old[i:i+3] == 'que' and new[i:i+3] == '¤¤¤'):
+				diffs.append((old[i:i+3], new[i:i+3], ['avecque(s)/doncque(s)']))
+				consume(indexes, 2)
+
+			elif (old[i:i+2] in ['&¤','¤&'] and
+				  new[i:i+2] == 'et'):
+				diffs.append((old[i:i+2], new[i:i+2], ['esperluette']))
+				consume(indexes, 1)
+			elif (old[i:i+2] in ['ß¤','¤ß'] and
+				  new[i:i+2] == 'ss'):
+				diffs.append((old[i:i+2], new[i:i+2], ['eszett']))
+				consume(indexes, 1)
+			elif (old[i:i+2] in ['eu','eû', 'ev', 'eü'] and
+				  new[i:i+2] in ['¤u', '¤û']):
+				diffs.append((old[i:i+2], new[i:i+2], ['eu → u']))
+				consume(indexes, 1)
+			elif (old[i:i+2] == 'y¤' and
+				  new[i:i+2] == 'is'):
+				diffs.append((old[i:i+2], new[i:i+2], ['terminaison y → is']))
+				consume(indexes, 1)
+			elif (old[i:i+2] == 'lt' and
+				  new[i:i+2] == '¤t'):
+				diffs.append((old[i:i+2], new[i:i+2], ['voyelle + lt → voyelle + t']))
+				consume(indexes, 1)
+			elif (old[i:i+2] == 'gn' and
+				  new[i:i+2] == 'nn'):
+				diffs.append((old[i:i+2], new[i:i+2], ['gn → nn']))
+				consume(indexes, 1)
+			elif (old[i:i+2] == 'es' and
+				  new[i:i+2] in ["¤'", "¤’", "'¤", "’¤"]):
+				diffs.append((old[i:i+2], new[i:i+2], ['élision es → apostrophe']))
+				consume(indexes, 1)
+
+			# tilde
+			elif (old[i:i+2] in ['ã¤','¤ã'] and new[i:i+2] in ['am','an']
+			   or old[i:i+2] in ['ẽ¤','¤ẽ'] and new[i:i+2] in ['em','en']
+			   or old[i:i+2] in ['õ¤','¤õ'] and new[i:i+2] in ['om','on']
+			   or old[i:i+2] in ['ũ¤','¤ũ'] and new[i:i+2] in ['um','un']):
+				diffs.append((old[i:i+2], new[i:i+2], ['tilde → voyelle + m/n']))
+				consume(indexes, 1)
+			elif (old[i:i+2] in ['sc', 'sç', 'ſc', 'ſç'] and new[i:i+2] == 's¤'):
+				diffs.append((old[i:i+2], new[i:i+2], ['sc → s']))
+				consume(indexes, 1)
+
+			# double consonne
+			elif (i+1 < len(old) and
+				 (old[i] == '¤' and old[i+1] == new[i] == new[i+1]
+				or new[i] == '¤' and new[i+1] == old[i] == old[i+1])):
+				diffs.append((old[i:i+2], new[i:i+2], ['double consonne']))
+				consume(indexes, 1)
+			elif (i-1 > 0 and 
+				(old[i] == '¤' and old[i-1] == new[i] == new[i-1]
+				or new[i] == '¤' and new[i-1] == old[i] == old[i-1])):
+				diffs.append((old[i:i+2], new[i:i+2], ['double consonne']))
 			
-			# increment change counter
-			nchanges += 1
-			# add chars to substrings
-			substring1 += char1
-			substring2 += char2
-			# search for rules
-			rules = find_rules(substring1, substring2)
-			
-			# rules found
-			if rules != []:
-				# add entry
-				changes.append((substring1, substring2, rules))
-				# reset substrings
-				substring1, substring2 = ('', '')
-		
-		# if same char but diff exists
-		elif len(substring1) > 0:
-			# look for double consonant
-			if (substring1 == '¤' and substring2 == char1 == char2
-					or substring2 == '¤' and substring1 == char1 == char2):
-				substring1 += char1
-				substring2 += char2
-			# find rules
-			rules = find_rules(substring1, substring2)
-			# add entry even if no rule found
-			changes.append((substring1, substring2, rules))
-			# reset substrings
-			substring1, substring2 = ('', '')
+			elif ((old[i], new[i]) == ('c', 'ç') or
+				  (old[i], new[i]) == ('ç', 'c')):
+				diffs.append((old[i], new[i], ['cédille']))
+			elif (old[i] == 'y' and
+				  new[i] in ['i', 'ï']):
+				diffs.append((old[i], new[i], ['lettre calligraphique']))
+			elif (old[i] in ['i', 'ï'] and
+				  new[i] == 'y'):
+				diffs.append((old[i], new[i], ['i → y']))
+			elif (old[i] in ['x', 'z'] and
+				  new[i] == 's'):
+				diffs.append((old[i], new[i], ['x/z → s']))
+			elif (old[i] == 's' and
+				  new[i] == 'z'):
+				diffs.append((old[i], new[i], ['s → z']))
+			elif (old[i] == 's' and
+				  new[i] == 't'):
+				diffs.append((old[i], new[i], ['s → t']))
+			elif (old[i] == 'd' and
+				  new[i] == 't'):
+				diffs.append((old[i], new[i], ['d → t']))
+			elif (old[i] == 't' and
+				  new[i] == 'd'):
+				diffs.append((old[i], new[i], ['t → d']))
+			elif (old[i] == 'o' and
+				  new[i] == 'a'):
+				diffs.append((old[i], new[i], ['o → a']))
+			elif (old[i] == '¤' and
+				  new[i] == 'h'):
+				diffs.append((old[i], new[i], ['ajout h mot grec']))
+			elif (old[i] in 'aàâ' and new[i] in 'aàâ'
+				or old[i] in 'EÉÈÊË' and new[i] in 'EÉÈÊË'
+				or old[i] in 'eéèêë' and new[i] in 'eéèêë'
+				or old[i] in 'iîï' and new[i] in 'iîï'
+				or old[i] in 'oõô' and new[i] in 'oõô'
+				or old[i] in 'uùûü' and new[i] in 'uùûü'):
+				diffs.append((old[i], new[i], ['accent']))
+			elif (old[i] in ["'", "’"] and
+				  new[i] in ["'", "’"]):
+				diffs.append((old[i], new[i], ['apostrophe']))
+			elif (old[i] in [' ', '-'] and
+				  new[i] in ['-', '¤']):
+				diffs.append((old[i], new[i], ['fusion']))
+			elif (old[i] in ['¤', '-'] and
+				  new[i] in ['-', ' ']):
+				diffs.append((old[i], new[i], ['séparation']))
+			elif (old[i] == '¤' and
+				  new[i] in ['d', 't']):
+				diffs.append((old[i], new[i], ['ajout d/t terminaison']))
+			elif (old[i] in 'uv' and
+				  new[i] in 'vu' or
+				  old[i] in 'ij' and
+				  new[i] in 'ij'):
+				diffs.append((old[i], new[i], ['lettre ramiste']))
+			elif (old[i] in 'ſshtdcçb' and new[i] == '¤'):
+				diffs.append((old[i], new[i], ['suppression lettre étymologique']))
+			# no rule found
+			else:
+				diffs.append((old[i], new[i], []))
 
-	# end of strings : if current substrings
-	if substring1 and substring2:
-		# find rules
-		rules = find_rules(substring1, substring2)
-		# add entry even if no rule found
-		changes.append((substring1, substring2, rules))
-
-	# return list of changes
-	return nchanges, changes
-
-def find_rules(old, new):
-
-	assert len(old) == len(new), f'error: different size for diff ({old} → {new})'
-	
-	# init rules
-	rules = []
-	
-	# 1 char rules
-	if len(old) == 1:
-		# majuscule
-		if (new == old.lower()
-				or new == old.upper()):
-			rules.append('majuscule')
-		else:
-			# make all lowercase
-			old = old.lower()
-			new = new.lower()
-		# s long
-		if (old, new) == ('ſ', 's'):
-			rules.append ('s long')
-		# sç → s
-		elif (old, new) == ('ç', 's'):
-			rules.append ('sç → s')
-		# cédille
-		elif ((old, new) == ('c', 'ç')
-				or (old, new) == ('ç', 'c')):
-			rules.append ('cédille')
-		# lettre calligraphique
-		elif (old, new) == ('y', 'i'):
-			rules.append ('lettre calligraphique')
-		# ï → y
-		elif ((old, new) == ('i', 'y')
-				or (old, new) == ('ï', 'y')):
-			rules.append ('ï devient y')
-		# x/z → s
-		elif ((old, new) == ('z', 's')
-				or (old, new) == ('x', 's')):
-			rules.append ('x/z devient s')
-		# s → z (assés → assez) 
-		elif ((old, new) == ('s', 'z')):
-			rules.append ('terminaison s → z')
-		# participe présent s → t
-		elif ((old, new) == ('s', 't')):
-			rules.append ('participe présent s → t')
-		# d → t  (quand → quant)
-		elif ((old, new) == ('d', 't')):
-			rules.append ('terminaison d → t')
-		# d → t  (étandart → étandard)
-		elif ((old, new) == ('t', 'd')):
-			rules.append ('terminaison t → d')
-		# conjugaison
-		elif (old, new) == ('o', 'a'):
-			rules.append ('conjugaison')
-		# accents
-		elif (old in 'aàâ' and new in 'aàâ'
-				or old in 'EÉÈÊË' and new in 'EÉÈÊË'
-				or old in 'eéèêë' and new in 'eéèêë'
-				or old in 'iîï' and new in 'iîï'
-				or old in 'oô' and new in 'oô'
-				or old in 'uùûü' and new in 'uùûü'):
-			rules.append('accent')
-		# apostrophe
-		elif (old, new) == ("'", "’"):
-			rules.append('apostrophe')
-		# fusion de deux mots
-		elif ((old, new) == (' ', '¤')
-				or (old, new) == (' ', '-')
-				or (old, new) == ('-', '¤')):
-			rules.append ('fusion')
-		# séparation de deux mots
-		elif ((old, new) == ('¤', ' ')
-				or (old, new) == ('-', ' ')
-				or (old, new) == ('¤', '-')):
-			rules.append ('séparation')
-		# ajout t/d terminaison
-		elif ((old, new) == ('¤', 'd')
-				or (old, new) == ('¤', 't')):
-			rules.append ('ajout d/t terminaison')
-		# ajout d'un h pour les mots grecs
-		elif ((old, new) == ('¤', 'h')):
-			rules.append('ajout h mot grec')
-		elif ((old, new) == ('a', 'e')):
-			rules.append ('a devient e')
-		# lettre ramiste
-		elif ((old, new) == ('u', 'v')
-				or (old, new) == ('v', 'u')
-				or (old, new) == ('i', 'j')
-				or (old, new) == ('j', 'i')):
-			rules.append('lettre ramiste')
-		# suppression lettre étymologique
-		elif (old in 'ſshtdcçb' and new == '¤'):
-			rules.append ('supp. lettre étymologique')
-
-	# 2 chars rules
-	elif len(old) == 2:
-		# ampersand
-		if (old == '¤&' and new == 'et'):
-			rules.append('esperluette')
-		# eu → ¤û
-		if (old == 'eu' and new == '¤û'
-				or old == 'eû' and new == '¤u'
-				or old == 'ev' and new == '¤u'):
-			rules.append('eu → u')
-		# tilde
-		if (old == '¤ẽ' and new == 'en'
-				or old == '¤ã' and new == 'an'):
-			rules.append('tilde → en/an')
-		# jusques → jusqu'
-		elif (old, new) == ('es', '¤’'):
-			rules.append ('élision ques → qu')
-		# double consonant
-		elif (old[0] == '¤' and new[0] == new[1] == old[1]
-				or new[0] == '¤' and old[0] == old[1] == new[1]):
-			rules.append('double consonne')
-	return rules
+	return len(diffs), diffs
 
 def pairs_to_file(a, b, dst, delta_only = False):
 	'''
