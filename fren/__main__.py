@@ -125,7 +125,10 @@ def extract_dict(input_dir, output_dir, delta_only = True):
 		# process lines
 		for line in lines:
 			# retrieve word pair
-			old, new = line.rstrip().split('\t')
+			try:
+				old, new = line.rstrip().split('\t')
+			except:
+				print(line)
 			# add word pair to dictionary
 			pair_to_dic(old, new, dic, delta_only)
 

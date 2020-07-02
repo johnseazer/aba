@@ -35,53 +35,29 @@ def align_compound_words(a, b):
 	'''
 	aligns two same-sized lists of strings
 	where compound words are formatted with '¤'
-	
-	['Ie', 'poſſede', 'quatre', 'vingt',    'dix',              'pieces']
-	['Je', 'possède', '¤',      '¤',        'quatre-vingt-dix', 'pièces']
-	→
-	['Ie', 'poſſede', 'quatre vingt dix', 'pieces']
-	['Je', 'possède', 'quatre-vingt-dix', 'pièces']
 	'''
 	
 	# init result lists
 	res_a = []
 	res_b = []
-	
-	# for each word pair
-	for i in range(len(a)):
+	indexes = iter(range(len(a)))
 
-		# alias for current words
+	# process lists
+	for i in indexes:
+		# get word pair
 		wa = a[i]
 		wb = b[i]
-		
-		# one of the words has '¤' as first and last char → part of compound
-		# ('¤' as first char but not last → end of compound)
-		if (wa[0] == '¤' and wa[-1] == '¤' or
-			wb[0] == '¤' and wb[-1] == '¤'):
-			
-			# i+1 out of range → error from before : print and ignore
-			if len(a) == i+1 and len(b) == i+1:
-				print('\terror : compound but no next word')
-				print('\t\t' + str(a))
-				print('\t\t' + str(b))
-				continue
+		# next word is '¤' : concatenate
+		if (i+1 < len(a)) and (a[i+1] == '¤' or b[i+1] == '¤'):
+			wa = wa + ' ' + a[i+1]
+			wb = wb + ' ' + b[i+1]
+			wa = wa.rstrip(' ¤')
+			wb = wb.rstrip(' ¤')
+			consume(indexes, 1)
 
-			# both words : add a space, and add as a prefix before next word 
-			a[i+1] = wa + ' ' + a[i+1]
-			b[i+1] = wb + ' ' + b[i+1]      
+		res_a.append(wa)
+		res_b.append(wb)
 
-			# processing is delegated to next word pair so ignore current word
-			continue
-		
-		# else → end of compound or regular word pair
-		else:
-			# strip processing chars in case of end of compund
-			wa = wa.lstrip('¤ ')
-			wb = wb.lstrip('¤ ')
-			# append to result sequences
-			res_a.append(wa)
-			res_b.append(wb)
-	# return result lists
 	return res_a, res_b
 
 def align_chars(s, t, submat):

@@ -5,7 +5,7 @@ from .distance import levenshtein
 from .utils import init_matrix
 
 
-def needleman_wunsch(a, b, scores = (1, -1, -1), submat = {}, mode = 'word'): 
+def needleman_wunsch(a, b, scores = (4, -1, -1), submat = {}, mode = 'word'): 
     """Returns alignment of sequences a and b.
 
     :param scores: Scores for match award, mismatch penalty and gap penalty
@@ -48,16 +48,16 @@ def needleman_wunsch(a, b, scores = (1, -1, -1), submat = {}, mode = 'word'):
             align_b.append(b[y-1])
             x = x-1
             y = y-1
-        elif x > 0 and current_score == top_score + gap_penalty:
-            # origin is top
-            align_a.append(a[x-1])
-            align_b.append('¤')
-            x = x-1
         elif y > 0 and current_score == left_score + gap_penalty:
             # origin is left
             align_a.append('¤')
             align_b.append(b[y-1])
             y = y-1
+        elif x > 0 and current_score == top_score + gap_penalty:
+            # origin is top
+            align_a.append(a[x-1])
+            align_b.append('¤')
+            x = x-1
         else:
             raise ValueError('Traceback failed')
 
@@ -73,20 +73,19 @@ def score(a, b, scores, submat, mode):
     # make all lowercase
     a = a.lower()
     b = b.lower()
-    # substitution matrix
-    if (a in submat and b in submat[a]):
-      return submat[a][b]
     # match
-    elif (a == b):
+    if (a == b):
         return match_award
+    # substitution matrix
+    elif (a in submat and b in submat[a]):
+      return submat[a][b]
     # gap
     elif a == '¤' or b == '¤':
         return gap_penalty
     # mismatch
+    elif (mode == 'words'
+        and a[0] == b[0]
+        and levenshtein(a, b, submat = submat) <= len(b)):
+        return match_award
     else:
         return mismatch_penalty
-    '''
-    elif (mode == 'words'
-        and levenshtein(a, b, submat = submat) <= max(len(a), len(b))/2):
-        return match_award
-    '''
