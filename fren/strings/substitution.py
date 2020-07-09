@@ -20,19 +20,23 @@ def init_submat_chars():
 	add_to_submat('ü', 'u', 2, submat)
 	add_to_submat('ũ', 'u', 2, submat)
 	# ramist
-	add_to_submat('i', 'j', 1, submat)
+	add_to_submat('i', 'j', 2, submat)
 	add_to_submat('j', 'i', 1, submat)
 	add_to_submat('u', 'v', 1, submat)
 	add_to_submat('v', 'u', 1, submat)
 	# replacement
+	add_to_submat('c', 'q', 1, submat)
+	add_to_submat('q', 'c', 1, submat)
 	add_to_submat('g', 'n', 1, submat)
 	add_to_submat('n', 'm', 1, submat)
 	add_to_submat('s', 'z', 1, submat)
-	add_to_submat('y', 'i', 1, submat)
+	add_to_submat('y', 'i', 2, submat)
+	add_to_submat('œ', 'o', 2, submat)
+	add_to_submat('o', 'œ', 2, submat)
 	# old chars
 	add_to_submat('&', 'e', 2, submat)
 	add_to_submat('ß', 's', 2, submat)
-	add_to_submat('ſ', 's', 4, submat)
+	add_to_submat('ſ', 's', 2, submat)
 	add_to_submat('ſ', 'z', 1, submat)
 	return submat
 

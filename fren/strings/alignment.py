@@ -74,7 +74,8 @@ def score(a, b, scores, submat, mode):
     a = a.lower()
     b = b.lower()
     # match
-    if (a == b):
+    if (a == b
+     or a == '&' and b == 'et'):
         return match_award
     # substitution matrix
     elif (a in submat and b in submat[a]):
@@ -83,9 +84,11 @@ def score(a, b, scores, submat, mode):
     elif a == '¤' or b == '¤':
         return gap_penalty
     # mismatch
-    elif (mode == 'words'
-        and a[0] == b[0]
-        and levenshtein(a, b, submat = submat) <= len(b)):
-        return match_award
+    elif (mode == 'words' and len(a) >= 1 and len(b) >= 1):
+        dist = levenshtein(a, b, costs = (1, 1, 2), submat = submat)
+        if (dist < min(len(a), len(b)) and dist < 4):
+            return match_award - dist
+        else:
+            return mismatch_penalty
     else:
         return mismatch_penalty

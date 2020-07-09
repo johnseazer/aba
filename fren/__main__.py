@@ -96,7 +96,7 @@ def align_words(input_dir, output_dir):
 				(old, new) = sequences
 				# pre-process sequences
 				old = preprocess(old)
-				new = preprocess(new)	
+				new = preprocess(new)
 				# align words with needleman-wunsch
 				(old, new) = needleman_wunsch(old, new, submat = submat, mode = 'words')
 				# post-process sequences
@@ -154,7 +154,7 @@ def label_dict(input_file, output_file):
 			# parse entry
 			old, new, count = line.rstrip('\n').split('\t')
 			# align chars
-			old, new = align_chars(old, new, submat)
+			old, new = align_chars(old, new, submat = submat)
 			# find differences
 			ndiffs, diffs = find_diffs(old, new)
 			# write new entry for each diff
