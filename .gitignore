@@ -2,6 +2,9 @@ backup/*
 docs/*
 download/*
 other/*
+data/*
 result/*
+.docs/*
+.morphalou/*
 **/.pytest_cache/*
 **/__pycache__/*
