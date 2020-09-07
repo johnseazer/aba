@@ -1,6 +1,6 @@
 # ABA
 
-Alignment-Based Approach for automatic modernization of abach texts from the 16th to the 18th century
+Alignment-Based Approach for automatic modernization of french texts from the 16th to the 18th century
 
 ## Install
 
