@@ -6,7 +6,7 @@ from .strings import init_submat_chars, align_chars
 import re
 
 
-def label_dict(input_file, output_file):
+def label_dic(input_file, output_file):
 
 	submat = init_submat_chars()
 
@@ -409,7 +409,6 @@ def apply_rules(s):
 	s = s.replace('õn','onn')
 	s = s.replace('õ','on')
 	
-	
 	# scavoir
 	s = re.sub(r'^([Ss])[CÇcç]', r'\1', s)
 	s = re.sub(r'^scau', r'sau', s)
@@ -423,6 +422,7 @@ def apply_rules(s):
 	# sch
 	s = s.replace('sch','ch')
 
+	
 	s = re.sub(r'([ao])ye$', r'\1ie', s)
 
 	mods.append(s)

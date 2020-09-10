@@ -2,8 +2,6 @@ from ASR_metrics import utils as metrics
 from itertools import product
 from more_itertools import consume
 
-from .saving import pairs_to_file
-
 
 # alignment
 

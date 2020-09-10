@@ -1,3 +1,4 @@
+import os
 import re
 import glob
 
@@ -15,10 +16,13 @@ def run():
 	modern 		= 'data/dic_morphalou.tsv'
 	name_dic	= 'data/dic_resources.txt'
 	wiki 		= 'data/dic_wikisource.tsv'
-	corpus 		= 'data/PARALLEL17_aligned'
+	corpus 		= 'data/PARALLEL17_words'
 	result_base = 'result/modernized_baseline.tsv'
 	result_rule = 'result/modernized_learning.tsv'
 	result_lab 	= 'result/modernized_learning_labeled.tsv'
+
+	if not os.path.exists('result'):
+		os.makedirs('result')
 
 	# initialize data
 	print('initializing data')

@@ -1,7 +1,7 @@
 import argparse
 
-from .utils.saving import extract_dict
-from .utils.modern import label_dict
+from .utils.saving import extract_dic
+from .utils.modern import label_dic
 
 
 def run():
@@ -24,8 +24,8 @@ def run():
 	args = parser.parse_args()
 
 	# analyze corpus
-	extract_dict(args.src_dir, args.raw_dic_path)
-	label_dict(args.raw_dic_path, args.lab_dic_path)
+	extract_dic(args.src_dir, args.raw_dic_path)
+	label_dic(args.raw_dic_path, args.lab_dic_path)
 
 
 if __name__ == '__main__':

@@ -3,9 +3,7 @@ import glob
 import argparse
 
 from .utils.strings import align_words
-from .utils.saving import extract_dict
-from .utils.modern import label_dict
-
+from .utils.saving import lst_to_tsv
 
 def run():
 
@@ -28,9 +26,10 @@ def run():
 
 	for file in files:
 		filename = file.split('\\')[-1]
+		filepath = args.dst_dir + '/' + filename
 		print(f'Aligning {filename} by words...')
-		al = align_words(file)
-		open(args.dst_dir + '/' + filename, 'w', encoding = 'utf8').write('\n'.join(['\t'.join(words) for words in al]))
-
+		aligned_words = align_words(file)
+		lst_to_tsv(aligned_words, filepath)
+		
 if __name__ == '__main__':
 	run()
