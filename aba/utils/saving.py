@@ -1,3 +1,6 @@
+import glob
+
+
 def pairs_to_file(a, b, dst, delta_only = False):
 	'''
 	takes two same-sized lists of strings a and b
@@ -48,3 +51,30 @@ def lst_to_tsv(lst, filename, delta_only = False):
 		for e in lst:
 			entry = str(e).strip('()').replace(', ','\t').replace("'",'') + '\n'
 			f.write(entry)
+
+
+def extract_dict(input_dir, output_file, delta_only = True):
+	
+	# init dic and file list
+	dic = {}
+	files = [f for f in glob.glob(input_dir + '/*.tsv')]
+
+	# process files
+	for f in files:
+		print(f'extracting words from {f}')
+		# read file
+		with open(f, 'r', encoding = 'utf8') as src:
+			lines = src.readlines()
+		# process lines
+		for line in lines:
+			# retrieve word pair
+			try:
+				old, new = line.rstrip().split('\t')
+			except:
+				print(line)
+			# add word pair to dictionary
+			pair_to_dic(old, new, dic, delta_only)
+
+	# write dic to tsv
+	with open(output_file, 'w', encoding = 'utf8') as dst:
+		dic_to_file(dic, dst)

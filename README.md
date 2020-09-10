@@ -4,6 +4,8 @@ Alignment-Based Approach for automatic modernization of french texts from the 16
 
 ## Install
 
+### Install Packages
+
 * With make
 
 ```bash
@@ -16,43 +18,65 @@ make
 pip install -r requirements.txt
 ```
 
-## Generate Data
+### Generate Data
 
-### Download and Analyze PARALLEL17
+#### Download, Align and Analyze PARALLEL17
 
-* Manually or automatically download [PARALLEL17](https://github.com/e-ditiones/PARALLEL17) and put it into the `download` folder
+1. Download [PARALLEL17](https://github.com/e-ditiones/PARALLEL17) and put it into the `download` folder or run script
 
 ```bash
-python -m aba.download_git
-python -m aba.analyze_corpus
+python -m aba.download_git 'https://github.com/PhilippeGambette/PARALLEL17.git'
 ```
 
-* Aligns PARALLEL17 by words
-* Creates two P17 dictionaries
+2. Align PARALLEL17 by words
 
-### Extract Morphalou Dictionary
+```bash
+python -m aba.align_words
+```
 
-* Manually download [Morphalou](https://www.ortolang.fr/market/lexicons/morphalou)
-* Copy `morphalou/4/Morphalou3.1_formatCSV_toutEnUn/Morphalou3.1_CSV.csv` to `download` folder
-* Run script
+3. Extract dictionaries from PARALLEL17
+
+```bash
+python -m aba.analyze
+```
+
+#### Extract Morphalou Dictionary
+
+1. Download [Morphalou](https://www.ortolang.fr/market/lexicons/morphalou)
+2. Copy `morphalou/4/Morphalou3.1_formatCSV_toutEnUn/Morphalou3.1_CSV.csv` to `download` folder
+3. Run script
 
 ```bash
 python -m aba.extract_dic_morphalou
 ```
 
-### Extract Wikisource Dictionary
+#### Extract Wikisource Dictionary
+
+Extract *old french → modern french* dictionary from [Wikisource](https://fr.wikisource.org/wiki/Wikisource:Dictionnaire).
 
 ```bash
 python -m aba.extract_dic_wikisource
 ```
 
-## Modernize Corpus
+#### Extract Name Dictionary
+
+Extract dictionary from multiple `.dic` files located in `resources` folder.
+
+```bash
+python -m aba.extract_dic_resources
+```
+
+## Main Scripts
+
+### Modernize Corpus
 
 ```bash
 python -m aba.modernize_corpus
 ```
 
-## Modernize Text
+### Modernize Text
+
+Modernize a text in old french. [^*]
 
 ```bash
 python -m aba.modernize [-h] [-n TEXT_NEW_PATH] text_old_path
@@ -60,17 +84,27 @@ python -m aba.modernize [-h] [-n TEXT_NEW_PATH] text_old_path
 
 ## Tools
 
+### Rules Chart
+
+Opens a labeled dictionary and displays an interactive `plotly` pie chart showing the frequence of modernization rules. A copy of the chart is saved in `data/rules_chart.html`.
+
+```bash
+python -m aba.rules_chart
+```
+
 ### Find Strings
 
-Searches 2-columns `.tsv` files in a given directory for two corresponding strings `old` and `new`.
+Search 2-columns `.tsv` files in a given directory for two corresponding strings `old` and `new`.
 Prints files, rows and lines where both strings appear.
 
 ```bash
 python -m aba.find_strings [-h] [-d DIRECTORY] old new
 ```
 
-## Run Tests
+### Run Tests
 
 ```bash
 py.test
 ```
+
+[^*]: Path arborescence must be written with forward slashes `/`.

@@ -1,11 +1,13 @@
 import argparse
-from .strings.modern import modernize_sentence
-from .strings.utils import cacc, wacc
+
+from .utils.modern import modernize_sentence
+from .utils.strings import cacc, wacc
 
 def run():
 	
 	modern_dic_path = 'data/dic_morphalou.tsv'
 	learn_dic_path 	= 'data/dic_p17.tsv'
+	name_dic_path 	= 'data/dic_resources.txt'
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('text_old_path', type = str,
@@ -20,11 +22,12 @@ def run():
 	# read files
 	text_old	= [line.strip() for line in open(args.text_old_path, 'r', encoding = 'utf8')]
 	modern_dic 	= {line.strip() for line in open(modern_dic_path, 'r', encoding = 'utf8')}
+	name_dic 	= {line.strip() for line in open(name_dic_path, 'r', encoding = 'utf8')}
 	learn_dic 	= {old:new for (old, new, _) in [l.split('\t') for l in open(learn_dic_path, 'r', encoding = 'utf8')]}
 
 	# modernize
 	print(f'translating {args.text_old_path}')
-	text_mod 	= [modernize_sentence(s, modern_dic, learn_dic) for s in text_old]
+	text_mod 	= [modernize_sentence(s, modern_dic, learn_dic, name_dic = name_dic) for s in text_old]
 
 	# save modernized text
 	print(f'saving to {text_mod_path}')

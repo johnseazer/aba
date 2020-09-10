@@ -1,113 +1,84 @@
+# modern.py
+
 from more_itertools import consume
-from .alignment import needleman_wunsch
-from .distance import levenshtein
-from .substitution import init_submat_chars
+from .strings import init_submat_chars, align_chars
 
-'''
-pre-processing
-'''
+import re
 
-def preprocess(s):
-	s = link_hyphens(s)
-	s = separate_apostrophe (s)
-	s = separate_punctuation (s)
-	s = s.replace("'","’")
-	# split on all whitespace
-	return s.split()
 
-def link_hyphens(s):
-	# TRES- CHRESTIENNE → TRES-CHRESTIENNE
-	return s.replace('-', '- ')
+def label_dict(input_file, output_file):
 
-def separate_apostrophe(s):
-	return s.replace('’', '’ ').replace('\'', '\' ')
-
-def separate_punctuation(s):
-	# symbols to treat as single tokens (apostrophe and hyphen not counted)
-	punctuation = '!"\\()*,./:;>?[]^«¬»„…'
-	# separate these symbols in the string (add space before and after)
-	for char in punctuation:
-		# s = s.replace(char, ' ' + char + ' ')
-		s = s.replace(char, ' ')
-	# special case for ... (put consecutive periods back together)
-	s = s.replace('.  .  .', '...')
-	return s
-
-def align_compound_words(a, b):
-	
-	'''
-	aligns two same-sized lists of strings
-	where compound words are formatted with '¤'
-	'''
-	
-	# init result lists
-	res_a = []
-	res_b = []
-	indexes = iter(range(len(a)))
-	costs = (1, 1, 1)
 	submat = init_submat_chars()
 
-	# process lists
-	for i in indexes:
+	# read entries from source dictionary
+	with open(f'{input_file}', 'r', encoding = 'utf8') as src:
+		lines = src.readlines()
+	# process entries
+	with open(f'{output_file}', 'w', encoding = 'utf8') as dst:
+		# process dictionary entries
+		for line in lines:
+			# parse entry
+			old, new, count = line.rstrip('\n').split('\t')
+			# align chars
+			old, new = align_chars(old, new, submat = submat)
+			# find differences
+			ndiffs, diffs = find_diffs(old, new)
+			# write new entry for each diff
+			for diff in diffs:
+				old_chars, new_chars, rules = diff
+				dst.write(f'{old}\t{new}\t{count}\t{ndiffs}\t{old_chars}\t{new_chars}\t{rules}\n')
 
-		# if one of the two words from the current pair is empty :
-		# both words must be respectively concatenated
-		# with either their previous or next word
-		if (a[i] == '¤' or b[i] == '¤'):
-			
-			# determine whether the concatenation must be done
-			# with the previous or the next word
 
-			if (i == 0):
-				# first word pair : concatenate with next
-				concatenate_with = 'next'
-			elif (i == len(a) - 1):
-				# last word pair : concatenate with prev
-				concatenate_with = 'prev'
-			
-			# neither first or last word : compare distance of both options
-			else:
-				
-				# distance when concatenating with next word
-				wa = ((a[i] + ' ').strip('¤') + a[i+1]).lstrip(' ').rstrip(' ')
-				wb = ((b[i] + ' ').strip('¤') + b[i+1]).lstrip(' ').rstrip(' ')
-				distance_next = levenshtein(wa, wb, costs, submat)
-				
-				# distance when concatenating with previous word
-				wa = (a[i-1] + ' ' + a[i].strip('¤')).lstrip(' ').rstrip(' ')
-				wb = (b[i-1] + ' ' + b[i].strip('¤')).lstrip(' ').rstrip(' ')
-				distance_prev = levenshtein(wa, wb, costs, submat)
-				
-				if (distance_next < distance_prev):
-					concatenate_with = 'next'
-				else:
-					concatenate_with = 'prev'
+def preprocess(s):
+	# separate and unify apostrophes
+	s = re.sub(r"(['’])", r"’ ", s)
+	# separate punctuation
+	s = re.sub(r"([.,!?;:])", r" \1", s)
+	# separate tags
+	s = re.sub(r'(<.*>)', r' \1 ', s)
+	return s
 
-			# concatenate and store in result
-			if concatenate_with == 'next':
-				wa = ((a[i] + ' ').strip('¤') + a[i+1]).lstrip(' ').rstrip(' ')
-				wb = ((b[i] + ' ').strip('¤') + b[i+1]).lstrip(' ').rstrip(' ')
-				a[i+1] = wa
-				b[i+1] = wb
-				consume(indexes, 1)
-			else:
-				wa = (a[i-1] + ' ' + a[i].strip('¤')).lstrip(' ').rstrip(' ')
-				wb = (b[i-1] + ' ' + b[i].strip('¤')).lstrip(' ').rstrip(' ')
-				res_a.pop()
-				res_b.pop()
+def postprocess(s):
+	# opening tag
+	s = re.sub(r'(<[^/].*>)', r' \1', s)
+	# closing tag
+	s = re.sub(r'(</.*>)', r'\1 ', s)
+	# spaces
+	s = re.sub(r' +', ' ', s)
+	# punctuation
+	s = re.sub(r"(['’]) ", r"'", s)
+	s = re.sub(r" ([.,])", r"\1", s)
+	return s
 
-		else:
-			wa = a[i]
-			wb = b[i]
+def modernize_sentence(s, modern_dic, learn_dic, name_dic = {}):
+	s = preprocess(s)
+	tokens_old = s.replace("'", "’").replace("’", "’ ").split(' ')
+	tokens_new = [modernize(token, modern_dic, learn_dic, name_dic = name_dic) for token in tokens_old]
+	s = ' '.join(tokens_new)
+	s = postprocess(s)
+	return s
 
-		res_a.append(wa)
-		res_b.append(wb)
 
-	return res_a, res_b
+def modernize(word, modern_dic, learning_dic, name_dic = {}, rules = True):
+	# word present in modern dic : keep
+	if (word and word[0].isupper() and word.replace("’", "'") in name_dic) or word.lower().replace("’", "'") in modern_dic:
+		pass
+	# word present in learning dic : apply learning dic
+	elif word in learning_dic:
+		word = learning_dic[word]
+	# word absent in both dics : apply rules
+	elif rules:
+		mods = apply_rules(word)
+		# check all modernizations
+		# keep the one that appears in modern dic
+		word = mods[0]
+		for m in mods:
+			if (m and m[0].isupper() and m.replace("’", "'") in name_dic) or m.lower().replace("’", "'") in modern_dic:
+				word = m
+				break
+		# store result
+	return word
 
-def align_chars(s, t, submat):
-	s, t = needleman_wunsch(list(s), list(t), submat = submat)
-	return ''.join(s), ''.join(t)
 
 def find_diffs(old, new):
 
@@ -415,47 +386,106 @@ def find_diffs(old, new):
 
 	return len(diffs), diffs
 
-def pairs_to_file(a, b, dst, delta_only = False):
-	'''
-	takes two same-sized lists of strings a and b
-	writes each pair of corresponding strings as a line to dst in tsv format
-	'''
-	assert len(a) == len(b), 'different list sizes'
-	# go through each pair of corresponding words
-	for old, new in zip(a, b):
-		# ignore pairs of identical words if delta only
-		if (delta_only and old == new):
-			continue
-		# write pair of corresponding words to file in tsv format
-		dst.write(old + '\t' + new + '\n')
 
-def pair_to_dic(old, new, dic, delta_only = False):
+def apply_rules(s):
+
+	mods = []
+
+	# s long
+	s = s.replace('ſ','s')
+	# eszett
+	s = s.replace('ß','ss')
+	# esperluette
+	s = s.replace('&','et')
+
+	# tilde
+	s = s.replace('ãm','amm')
+	s = s.replace('ãn','ann')
+	s = s.replace('ã','an')
+	s = s.replace('ẽm','emm')
+	s = s.replace('ẽn','enn')
+	s = s.replace('ẽ','en')
+	s = s.replace('õm','omm')
+	s = s.replace('õn','onn')
+	s = s.replace('õ','on')
 	
-	'''
-	takes two strings old and new
-	adds the pair to dictionary dic as follows :
-	- keys are strings from old
-	- values are dictionaries in which :
-		- keys are strings from new
-		- values are the count of (old, new) occurences
-	'''
+	
+	# scavoir
+	s = re.sub(r'^([Ss])[CÇcç]', r'\1', s)
+	s = re.sub(r'^scau', r'sau', s)
 
-	# delta only : ignore identical words
-	if (delta_only and old == new):
-		return
-	# pair already in dic : increment count
-	if old in dic and new in dic[old]:
-		dic[old][new] += 1
-	# pair not in dic : add to dic
-	else:
-		dic[old] = {new: 1}
+	# terminaison oing
+	s = re.sub(r'oing$', 'oin', s)
 
-def dic_to_file(dic, f):
-	'''
-	write dictionary to tsv
-	format : old, new, count
-	'''
-	for old in dic:
-		for new in dic[old]:
-			count = dic[old][new]
-			f.write(old + '\t' + new + '\t' + str(count) + '\n')
+	# terminaison y
+	s = re.sub(r'y$','i', s)
+
+	# sch
+	s = s.replace('sch','ch')
+
+	s = re.sub(r'([ao])ye$', r'\1ie', s)
+
+	mods.append(s)
+
+	# suppression c étymologique
+	if 'ct' in s:
+		mods.append(s.replace('ct', 't'))
+
+	# suppression d étymologique
+	if re.search(r'[aeiou]dv', s):
+		mods.append(re.sub(r'([aeiou])dv', r'\1v', s))
+
+	# ajout d'un t ou d final (presens → présents)
+	if re.search(r'[ae]ns$', s):
+		mods.append(re.sub(r'([ae])ns$', r'\1nts', s))
+		mods.append(re.sub(r'([ae])ns$', r'\1nds', s))
+
+	# terminaison de verbe
+	if re.search(r'(.{2,})oi([est])', s):
+		mods.append(re.sub(r'(.{2,})oi([st])$', r'\1ai\2', s))
+		mods.append(re.sub(r'(.{2,})oient$', r'\1aient', s))
+
+	if re.search(r'e[Zz]$', s):
+		mods.append(re.sub(r'e[Zz]$', 'és', s))
+
+	if re.search(r'és$', s):
+		mods.append(re.sub(r'és$', 'ez', s))
+
+	if re.search(r'[aeiou]s[mnqt]', s, flags = re.IGNORECASE):
+		mods.append(s.replace('st', 't'))
+		mods.append(s.replace('est', 'ét'))
+		# try ast → ât
+		s2 = s
+		s2 = re.sub(r'as([mnqt])', r'â\1', s2)
+		s2 = re.sub(r'es([mnqt])', r'ê\1', s2)
+		s2 = re.sub(r'is([mnqt])', r'î\1', s2)
+		s2 = re.sub(r'os([mnqt])', r'ô\1', s2)
+		s2 = re.sub(r'us([mnqt])', r'û\1', s2)
+		mods.append(s2)
+		# try est → ét
+		s3 = s
+		s3 = re.sub(r'es([mnqt])', r'é\1', s3)
+		s3 = re.sub(r'Es([mnqt])', r'É\1', s3)
+		mods.append(s3)
+
+	if 'y' in s:
+		mods.append(s.replace('y', 'i'))
+
+	if 'ü' in s:
+		mods.append(s.replace('ü', 'u'))
+		mods.append(s.replace('eü', 'u'))
+
+	# lettres ramistes, accents
+	for mod in mods.copy():
+		if 'is' in s:
+			mods.append(mod.replace('is', 'î'))
+		if 'ai' in s:
+			mods.append(mod.replace('ai', 'aî'))
+		if 'u' in mod:
+			mods.append(mod.replace('u', 'v'))
+		if 'v' in mod:
+			mods.append(mod.replace('v', 'u'))
+		if 'e' in mod:
+			mods.append(re.sub(r'e([^$(s$)])', r'é\1', mod))
+
+	return mods
