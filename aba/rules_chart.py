@@ -1,8 +1,9 @@
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import os
 
-src = 'data/dic_p17_labeled.tsv'
+src = os.path.join('data','dic_p17_labeled.tsv')
 
 df = pd.read_table(
 		src,
@@ -57,4 +58,4 @@ fig = px.pie(
 fig.show()
 
 # save
-fig.write_html('data/rules_chart.html')
+fig.write_html(os.path.join('data','rules_chart.html'))

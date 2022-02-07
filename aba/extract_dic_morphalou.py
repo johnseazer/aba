@@ -2,9 +2,10 @@
 # 1. Download [Morphalou](https://www.ortolang.fr/market/lexicons/morphalou)
 # 2. Copy `morphalou/4/Morphalou3.1_formatCSV_toutEnUn/Morphalou3.1_CSV.csv` to `download` folder
 # 3. Run script
+import os
 
-src = 'download/Morphalou3.1_CSV.csv'
-dst = 'data/dic_morphalou.tsv'
+src = os.path.join('download','Morphalou3.1_CSV.csv')
+dst = os.path.join('data','dic_morphalou.tsv')
 
 print(f'Extracting Morphalou dictionary to {dst}...')
 

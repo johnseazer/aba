@@ -2,10 +2,10 @@
 
 from bs4 import BeautifulSoup
 import urllib.request
-import re
+import os, re
 
 # destination file
-dst_path = 'data/dic_wikisource.tsv'
+dst_path = os.path.join('data','dic_wikisource.tsv')
 
 # base url
 url_root = 'https://fr.wikisource.org'

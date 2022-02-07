@@ -1,12 +1,13 @@
 import argparse
+import os
 
 from .utils.modern import modernize_sentence
 
 def run():
 	
-	modern_dic_path = 'data/dic_morphalou.tsv'
-	learn_dic_path 	= 'data/dic_p17.tsv'
-	name_dic_path 	= 'data/dic_resources.txt'
+	modern_dic_path = os.path.join('data','dic_morphalou.tsv')
+	learn_dic_path 	= os.path.join('data','dic_p17.tsv')
+	name_dic_path 	= os.path.join('data','dic_resources.txt')
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('text_old_path', type = str,
@@ -14,7 +15,9 @@ def run():
 	args = parser.parse_args()
 
 	# output
-	text_mod_path = 'result/' + '.'.join(args.text_old_path.split('/')[-1].split('.')[0:-1]) + '_mod_aba.txt'
+	if os.path.isdir('result') == False:
+	   os.mkdir("result")
+	text_mod_path = os.path.join('result','.'.join(os.path.basename(args.text_old_path).split('.')[0:-1]) + '_mod_aba.txt')
 
 	# read files
 	text_old	= [line.strip() for line in open(args.text_old_path, 'r', encoding = 'utf8')]

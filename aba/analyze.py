@@ -1,14 +1,13 @@
-import argparse
+import argparse, os
 
 from .utils.saving import extract_dic
 from .utils.modern import label_dic
 
-
 def run():
 
-	default_src_dir = 'data/PARALLEL17_words'
-	default_raw_dic_path = 'data/dic_p17.tsv'
-	default_lab_dic_path = 'data/dic_p17_labeled.tsv'
+	default_src_dir = os.path.join('data','PARALLEL17_words')
+	default_raw_dic_path = os.path.join('data','dic_p17.tsv')
+	default_lab_dic_path = os.path.join('data','dic_p17_labeled.tsv')
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-s', '--src_dir', type = str,

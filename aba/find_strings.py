@@ -1,7 +1,8 @@
 import argparse
 import glob
+import os
 
-default_dir = 'download/PARALLEL17/corpus_tsv'
+default_dir = os.path.join(os.path.join('download','PARALLEL17'),corpus_tsv')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('old', type = str,
@@ -14,11 +15,11 @@ parser.add_argument('-d', '--directory', type = str,
 args = parser.parse_args()
 
 # get list of files in directory
-files = [f for f in glob.glob(args.directory + '/*.tsv')]
+files = [f for f in os.path.join(glob.glob(args.directory, '*.tsv'))]
 
 # read each file
 for file in files:
-	filename = file.split('\\')[-1]
+	filename = os.path.basename(file)
 	filename_printed = False
 	# get lines from file
 	lines = [line.strip() for line in open(file, 'r', encoding = 'utf8')]

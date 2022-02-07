@@ -7,8 +7,8 @@ from .utils.saving import lst_to_tsv
 
 def run():
 
-	default_src_dir = 'download/PARALLEL17/corpus_tsv'
-	default_dst_dir = 'data/PARALLEL17_words'
+	default_src_dir = os.path.join(os.path.join('download','PARALLEL17'),'corpus_tsv')
+	default_dst_dir = os.path.join('data','PARALLEL17_words')
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-s', '--src_dir', type = str,
@@ -22,11 +22,11 @@ def run():
 	if not os.path.exists(args.dst_dir):
 		os.makedirs(args.dst_dir)
 
-	files = [f for f in glob.glob(args.src_dir + '/*.tsv')]
+	files = [f for f in glob.glob(os.path.join(args.src_dir, '/*.tsv'))]
 
 	for file in files:
-		filename = file.split('\\')[-1]
-		filepath = args.dst_dir + '/' + filename
+		filename = os.path.basename(file)
+		filepath = os.path.join(args.dst_dir, filename)
 		print(f'Aligning {filename} by words...')
 		aligned_words = align_words(file)
 		lst_to_tsv(aligned_words, filepath)

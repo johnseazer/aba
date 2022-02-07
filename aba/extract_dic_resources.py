@@ -2,6 +2,7 @@
 
 import glob
 import argparse
+import os
 
 default_src_dir = 'resources'
 default_dst_dir = 'data'
@@ -21,7 +22,7 @@ parser.add_argument('-f', '--dst_filename', type = str,
 args = parser.parse_args()
 
 # get list of .dic files in directory
-files = [f for f in glob.glob(args.src_dir + '/*.dic')]
+files = [f for f in glob.glob(os.path.join(args.src_dir, '*.dic'))]
 
 # fill dictionary
 dic = []
@@ -29,7 +30,7 @@ for f in files:
 	print(f'Extracting words from {f}...')
 	dic.extend([line.split(',')[0] for line in open(f, 'r', encoding = 'utf8')])
 
-filepath = args.dst_dir + '/' + args.dst_filename + '.txt'
+filepath = os.path.join(args.dst_dir, args.dst_filename + '.txt')
 print(f'Saving to {filepath}...')
 open(filepath, 'w', encoding = 'utf8').write('\n'.join(dic))
 print('Done.')
