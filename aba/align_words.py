@@ -22,7 +22,7 @@ def run():
 	if not os.path.exists(args.dst_dir):
 		os.makedirs(args.dst_dir)
 
-	files = [f for f in glob.glob(os.path.join(args.src_dir, '/*.tsv'))]
+	files = [f for f in glob.glob(os.path.join(args.src_dir, '*.tsv'))]
 
 	for file in files:
 		filename = os.path.basename(file)
