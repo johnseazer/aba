@@ -14,6 +14,8 @@ make
 
 * Without make
 
+Add an extra line with ASR_metrics in the end of the file requirements.txt if you want to use the evaluation metrics
+
 ```bash
 pip install -r requirements.txt
 ```
