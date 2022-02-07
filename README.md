@@ -76,10 +76,18 @@ python -m aba.modernize_corpus
 
 ### Modernize Text
 
-Modernize a text in old french. [^*]
+Modernize a text in old French. [^*]
 
 ```bash
-python -m aba.modernize [-h] [-n TEXT_NEW_PATH] text_old_path
+python -m aba.modernize [-h] text_old_path
+```
+
+### Modernize Text and Evaluate It
+
+Modernize a text in old French and evaluate it by comparing it with a reference version stored in a file TEXT_NEW_PATH
+
+```bash
+python -m aba.modernize_and_evaluate [-h] -n TEXT_NEW_PATH text_old_path
 ```
 
 ## Tools

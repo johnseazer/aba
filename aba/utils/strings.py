@@ -1,4 +1,5 @@
-from ASR_metrics import utils as metrics
+# deactivated to avoid installing ASR_metrics
+#from ASR_metrics import utils as metrics
 from itertools import product
 from more_itertools import consume
 
@@ -15,9 +16,17 @@ def align_words(file):
 	# read file
 	with open(file, 'r', encoding = 'utf8') as src:
 		lines = src.readlines()
-
+  
+	nbLines = len(lines)
+	percent = int(nbLines / 100)
+	if percent == 0:
+	   percent = 1
+	lineNb = 0
 	# process lines and add to list
 	for line in lines:
+		lineNb += 1
+		if lineNb % percent == 0:
+			print(str(int(lineNb/percent)) + "% done...")
 		# split line
 		sequences = line.rstrip().split('\t')
 		# ignore bad lines
@@ -281,14 +290,17 @@ def init_submat_words():
 	return submat
 
 
+"""
 # evaluation
-
+# deactivated to avoid installing ASR_metrics
 def cacc(lst):
-	return 1 - sum(metrics.calculate_cer(mod, new) for (mod, new) in lst) / len(lst)
+  return 1
+	#return 1 - sum(metrics.calculate_cer(mod, new) for (mod, new) in lst) / len(lst)
 
 def wacc(lst):
-	return 1 - sum(metrics.calculate_wer(mod, new) for (mod, new) in lst) / len(lst)
-
+	return 1
+	#return 1 - sum(metrics.calculate_wer(mod, new) for (mod, new) in lst) / len(lst)
+"""
 
 # tools
 

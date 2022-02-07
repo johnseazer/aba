@@ -3,7 +3,8 @@ import re
 import glob
 
 from .utils.modern import find_diffs, modernize
-from .utils.strings import cacc, wacc, align_chars, init_submat_chars
+from .utils.strings import align_chars, init_submat_chars
+from .utils.evaluation import cacc, wacc
 from .utils.saving import lst_to_tsv
 
 
