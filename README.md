@@ -2,6 +2,8 @@
 
 Alignment-Based Approach for automatic modernization of french texts from the 16th to the 18th century
 
+Online demo at https://igm.univ-mlv.fr/~gambette/text-processing/aba/
+
 ## Install
 
 ### Install Packages
