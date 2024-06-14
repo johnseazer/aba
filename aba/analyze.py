@@ -5,7 +5,7 @@ from .utils.modern import label_dic
 
 def run():
 
-	default_src_dir = os.path.join('data','PARALLEL17_words')
+	default_src_dir = os.path.join('data','FreEMnorm_words')
 	default_raw_dic_path = os.path.join('data','dic_p17.tsv')
 	default_lab_dic_path = os.path.join('data','dic_p17_labeled.tsv')
 

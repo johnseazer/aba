@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+from os import walk
 
 default_dir = os.path.join(os.path.join('download','FreEMnorm'),'corpus')
 
@@ -15,14 +16,18 @@ parser.add_argument('-d', '--directory', type = str,
 args = parser.parse_args()
 
 # get list of files in directory
-files = [f for f in os.path.join(glob.glob(args.directory, '*.tsv'))]
+#files = [f for f in os.path.join(glob.glob(args.directory, '*.tsv'))]
+f = []
+for (dirpath, dirnames, filenames) in walk(args.directory):
+    f.extend(filenames)
+print(f)
 
 # read each file
-for file in files:
+for file in f:
 	filename = os.path.basename(file)
-	filename_printed = False
+	filename_printed = True
 	# get lines from file
-	lines = [line.strip() for line in open(file, 'r', encoding = 'utf8')]
+	lines = [line.strip() for line in open(os.path.join(default_dir,file), 'r', encoding = 'utf8')]
 	# search lines
 	for line_no, line in enumerate(lines):
 		# split line
@@ -38,4 +43,4 @@ for file in files:
 			if not filename_printed:
 				print (f'{filename}')
 				filename_printed = True
-			print(f'\t{(line_no + 1):4} - {line}')
+			print(f'{filename} \t {(line_no + 1):4} \t  {line}')
