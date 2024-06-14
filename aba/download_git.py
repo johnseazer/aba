@@ -4,7 +4,7 @@ from pygit2 import clone_repository
 
 def run():
 
-	default_repo_url = 'https://github.com/PhilippeGambette/PARALLEL17.git'
+	default_repo_url = 'https://github.com/FreEM-corpora/FreEMnorm'
 	
 	parser = argparse.ArgumentParser()
 	parser.add_argument('repo_url', type = str,

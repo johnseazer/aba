@@ -7,8 +7,8 @@ from .utils.saving import lst_to_tsv
 
 def run():
 
-	default_src_dir = os.path.join(os.path.join('download','PARALLEL17'),'corpus_tsv')
-	default_dst_dir = os.path.join('data','PARALLEL17_words')
+	default_src_dir = os.path.join(os.path.join('download','FreEMnorm'),'corpus')
+	default_dst_dir = os.path.join('data','FreEMnorm_words')
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-s', '--src_dir', type = str,

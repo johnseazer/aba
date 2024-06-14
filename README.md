@@ -24,21 +24,21 @@ pip install -r requirements.txt
 
 ### Generate Data
 
-#### Download, Align and Analyze PARALLEL17
+#### Download, Align and Analyze FreEMnorm
 
-1. Download [PARALLEL17](https://github.com/e-ditiones/PARALLEL17) and put it into the `download` folder or run script
+1. Download [FreEMnorm](https://github.com/FreEM-corpora/FreEMnorm) and put it into the `download` folder or run script
 
 ```bash
-python -m aba.download_git 'https://github.com/PhilippeGambette/PARALLEL17.git'
+python -m aba.download_git 'https://github.com/FreEM-corpora/FreEMnorm.git'
 ```
 
-2. Align PARALLEL17 by words
+2. Align FreEMnorm by words
 
 ```bash
 python -m aba.align_words
 ```
 
-3. Extract dictionaries from PARALLEL17
+3. Extract dictionaries from FreEMnorm
 
 ```bash
 python -m aba.analyze
@@ -47,7 +47,7 @@ python -m aba.analyze
 #### Extract Morphalou Dictionary
 
 1. Download [Morphalou](https://www.ortolang.fr/market/lexicons/morphalou)
-2. Copy `morphalou/4/Morphalou3.1_formatCSV_toutEnUn/Morphalou3.1_CSV.csv` to `download` folder
+2. Copy `morphalou/5/Morphalou3.1_formatCSV_toutEnUn/Morphalou3.1_CSV.csv` to `download` folder
 3. Run script
 
 ```bash
@@ -80,18 +80,18 @@ python -m aba.modernize_corpus
 
 ### Modernize Text
 
-Modernize a text in old French. [^*]
+Modernize a text in Middle French. [^*]
 
 ```bash
-python -m aba.modernize [-h] text_old_path
+python -m aba.modernize [-h] middle_french_text_path
 ```
 
 ### Modernize Text and Evaluate It
 
-Modernize a text in old French and evaluate it by comparing it with a reference version stored in a file TEXT_NEW_PATH
+Modernize a text in Middle French and evaluate it by comparing it with a reference version stored in a file TEXT_NEW_PATH
 
 ```bash
-python -m aba.modernize_and_evaluate [-h] -n TEXT_NEW_PATH text_old_path
+python -m aba.modernize_and_evaluate [-h] -n NORMALISED_TEXT_PATH middle_french_text_path
 ```
 
 ## Tools

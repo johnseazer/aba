@@ -2,7 +2,7 @@ import argparse
 import glob
 import os
 
-default_dir = os.path.join(os.path.join('download','PARALLEL17'),corpus_tsv')
+default_dir = os.path.join(os.path.join('download','FreEMnorm'),'corpus')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('old', type = str,
