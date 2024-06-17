@@ -10,3 +10,6 @@ result/*
 **/__pycache__/*
 .DS_Store
 rules/
+dicts/
+plots/
+sums/

@@ -5,3 +5,6 @@ plotly
 pandas
 more-itertools
 ASR-metrics
+matplotlib
+seaborn
+nltk

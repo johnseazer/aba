@@ -35,6 +35,7 @@ def extract_dic(src_dir, dst_file, delta_only = True):
 
 	# process files
 	for f in files:
+		dic = {}
 		base_f=os.path.basename(f)
 		print(f'Extracting words from {base_f}...')
 		# read file

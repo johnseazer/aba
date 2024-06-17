@@ -113,6 +113,14 @@ Prints files, rows and lines where both strings appear.
 python -m aba.find_strings [-h] [-d DIRECTORY] old new
 ```
 
+### Produce plots of the evolution per rule
+
+Search 2-columns `.tsv` files in a given directory, search for spelling variation between `.src` and `.trg`, produce a plot with the evolution of each rule. It requires to run `python -m aba.rules_chart` first.
+
+```bash
+python -m aba.rules_sum.py
+```
+
 ### Run Tests
 
 ```bash
