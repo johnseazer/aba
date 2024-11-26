@@ -25,7 +25,7 @@ for line in df["rules"]:
       print(df["count"][i])
    '''
    if line=="[]":
-      line = "règle inconnue"
+      line = "unknown rule"
    if line in rules.keys():
       rules[line] += df["count"][i]
    else:

@@ -16,7 +16,7 @@ from shutil import copyfile
 firstTime = True
 #firstTime = False
 
-download_folder = os.path.join(os.path.join('download','PARALLEL17'),'corpus_tsv')
+download_folder = os.path.join(os.path.join('download','FreEMnorm'),'corpus')
 
 def empty_download_folder(download_folder):
     # Empty download folder
@@ -71,7 +71,7 @@ for f in files:
     outputFile.close()
     
     # empty word alignment folder
-    word_alignment_folder = os.path.join('data','PARALLEL17_words')
+    word_alignment_folder = os.path.join('data','FreEMnorm_words')
     word_alignment_files = glob.glob(os.path.join(word_alignment_folder,'*'))
     
     for f in word_alignment_files:
@@ -81,13 +81,13 @@ for f in files:
     if firstTime:
        # call align_words and save file if it is the first time the script is called on those files
        subprocess.call("python -m aba.align_words")
-       copyfile(os.path.join(os.path.join('data','PARALLEL17_words'),filename), os.path.join(os.path.join('corpus','PARALLEL17_words'),filename))
+       copyfile(os.path.join(os.path.join('data','FreEMnorm_words'),filename), os.path.join(os.path.join('corpus','FreEMnorm_words'),filename))
     else:
        # load the file otherwise
-       copyfile(os.path.join(os.path.join('corpus','PARALLEL17_words'),filename), os.path.join(os.path.join('data','PARALLEL17_words'),filename))
+       copyfile(os.path.join(os.path.join('corpus','FreEMnorm_words'),filename), os.path.join(os.path.join('data','FreEMnorm_words'),filename))
 
     # save number of Words
-    wordFile = open(os.path.join(os.path.join('data','PARALLEL17_words'),filename), "r", encoding="utf-8")
+    wordFile = open(os.path.join(os.path.join('data','FreEMnorm_words'),filename), "r", encoding="utf-8")
     fileSize[filename] = 0
     for line in wordFile:
        fileSize[filename] += 1
